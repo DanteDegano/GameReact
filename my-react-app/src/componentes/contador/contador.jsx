@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import BotonReinicio from '../botonReinicio/botonReinicio';
+import { MyContext } from "../../context/context";
 
 class Contador extends Component {
+
+  static contextType = MyContext; // Establece el contexto para este componente
   constructor(props) {
     super(props);
     const contadorGuardado = localStorage.getItem('contador');
@@ -58,7 +61,6 @@ class Contador extends Component {
     
     return contador;
   }
-
   reiniciarYAcelerarContador() {
     if (this.state.canReset) {
       this.setState(
@@ -77,7 +79,11 @@ class Contador extends Component {
       () => {
         localStorage.setItem('contador', '0');
         localStorage.setItem('velocidad', velocidadBase.toString());
+        const { valor, setValor } = this.context;
+        setValor(valor);
+        console.log( 'EnContador.jsx' + valor)
         this.iniciarIntervalo();
+        
       }
     );
   }
