@@ -21,7 +21,7 @@ class CompraComponent extends Component {
       // Accede al contexto a través de this.context
       const { valor, setValor } = this.context;
       setValor(nuevoValorConAumento);
-      console.log( 'EnComprar Mejora.jsx' + nuevoValorConAumento) 
+      console.log(nuevoValorConAumento) 
       return { valor: nuevoValorConAumento };
     });
   }
@@ -35,5 +35,6 @@ class CompraComponent extends Component {
     );
   }
 }
+
 
 export default CompraComponent;

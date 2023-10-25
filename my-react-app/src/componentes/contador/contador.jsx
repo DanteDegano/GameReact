@@ -3,8 +3,8 @@ import BotonReinicio from '../botonReinicio/botonReinicio';
 import { MyContext } from "../../context/context";
 
 class Contador extends Component {
+  static contextType = MyContext;
 
-  static contextType = MyContext; // Establece el contexto para este componente
   constructor(props) {
     super(props);
     const contadorGuardado = localStorage.getItem('contador');
@@ -12,15 +12,16 @@ class Contador extends Component {
 
     this.state = {
       contador: contadorGuardado ? parseFloat(contadorGuardado) : 0,
-      velocidad: velocidadGuardada ? parseFloat(velocidadGuardada) : 1000, // Cambiado a 1000 para una velocidad inicial de 1 segundo
-      resetCost: 50, // Costo de reinicio inicial
+      velocidad: velocidadGuardada ? parseFloat(velocidadGuardada) : 1000,
+      resetCost: 50,
       canReset: false,
-      shouldAccelerate: true, // Seguimiento de si se aplica aceleración
+      shouldAccelerate: true,
     };
 
     this.reiniciarYAcelerarContador = this.reiniciarYAcelerarContador.bind(this);
     this.reiniciarYSinAcelerar = this.reiniciarYSinAcelerar.bind(this);
     this.iniciarIntervalo = this.iniciarIntervalo.bind(this);
+    this.retirarIngresos = this.retirarIngresos.bind(this);
   }
 
   componentDidMount() {
@@ -61,6 +62,7 @@ class Contador extends Component {
     
     return contador;
   }
+
   reiniciarYAcelerarContador() {
     if (this.state.canReset) {
       this.setState(
@@ -73,34 +75,40 @@ class Contador extends Component {
   }
 
   reiniciarYSinAcelerar() {
-    const velocidadBase = 1000; // Establece la velocidad base aquí
+    const velocidadBase = 1000;
     this.setState(
       { contador: 0, velocidad: velocidadBase, canReset: false, shouldAccelerate: false },
       () => {
         localStorage.setItem('contador', '0');
         localStorage.setItem('velocidad', velocidadBase.toString());
-        const { valor, setValor } = this.context;
-        setValor(valor);
-        console.log( 'EnContador.jsx' + valor)
         this.iniciarIntervalo();
-        
       }
     );
   }
-  
-  
-  
-  
+
+  retirarIngresos() {
+    const { valor } = this.context;
+    if (this.state.contador >= valor) {  // Verifica si el contador es mayor o igual al valor
+      const nuevoContador = this.state.contador - valor;
+      this.setState({ contador: nuevoContador });
+      localStorage.setItem('contador', nuevoContador.toString());
+      console.log('Se retiraron: $' + valor )
+    }
+  }
 
   render() {
     const contadorFormateado = this.formatearContador();
+    const { valor } = this.context;
 
     return (
       <div>
         <p>Contador: {contadorFormateado}</p>
         <BotonReinicio reiniciarContador={this.reiniciarYSinAcelerar} />
-        <button onClick={this.reiniciarYAcelerarContador} disabled={!this.state.canReset} > 
+        <button onClick={this.reiniciarYAcelerarContador} disabled={!this.state.canReset}> 
           Reiniciar y Acelerar
+        </button>
+        <button onClick={this.retirarIngresos} disabled={this.state.contador < valor || valor > this.state.contador}> 
+          Retirar Ingresos
         </button>
       </div>
     );
